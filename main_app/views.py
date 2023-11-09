@@ -21,7 +21,7 @@ def students(request):
 
 
 def show_students(request):
-    # data = Student.objects.all() # SELECT * FROM students
+    data = Student.objects.all()  # SELECT * FROM students
     # data = Student.objects.all().order_by("-kcpe_score")
     # data = Student.objects.filter(first_name="Gran")
     # data = Student.objects.filter(first_name__startswith="gr")
@@ -29,10 +29,10 @@ def show_students(request):
     # data = Student.objects.filter(first_name__icontains="GR", last_name__icontains="c", kcpe_score__gt=250) # AND
     # data = Student.objects.filter(first_name__icontains="GR") | Student.objects.filter(last_name__icontains="La")
     # data = Student.objects.filter(dob__year=1997, dob__month=1)
-    today = datetime.today()
-    mon = today.month
-    day = today.day  #[0, 1, 2,3 ]
-    data = Student.objects.filter(dob__month=mon, dob__day=day).order_by("-first_name")
+    # today = datetime.today()
+    # mon = today.month
+    # day = today.day  #[0, 1, 2,3 ]
+    # data = Student.objects.filter(dob__month=mon, dob__day=day).order_by("-first_name")
     return render(request, "display.html", {"students": data})
 
 
@@ -45,3 +45,20 @@ def delete_student(request, student_id):
     student = get_object_or_404(Student, pk=student_id)
     student.delete()
     return redirect("show")
+
+
+def students_search(request):
+    search = request.GET["search"]
+    data = Student.objects.filter(
+        Q(first_name__icontains=search)
+        | Q(last_name__icontains=search)
+        | Q(email__icontains=search)
+    )
+
+    if search.isnumeric():
+        score = int(search)
+        data = Student.objects.filter(kcpe_score=score)
+
+    return render(request, "display.html", {"students": data})
+
+# Elastic search
