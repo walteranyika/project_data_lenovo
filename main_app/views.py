@@ -1,6 +1,5 @@
-import random
-from datetime import datetime
-
+from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -14,6 +13,10 @@ def students(request):
         form = StudentForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            messages.success(request, "Student saved successfully")
+            # messages.error(request, "Error while saving the student")
+            # messages.warning(request, "This action is going to delete your record")
+            # messages.info(request, "Tomorrow will be a holiday, please check your calendar")
             return redirect("home")
     else:
         form = StudentForm()
@@ -33,8 +36,13 @@ def show_students(request):
     # mon = today.month
     # day = today.day  #[0, 1, 2,3 ]
     # data = Student.objects.filter(dob__month=mon, dob__day=day).order_by("-first_name")
+    paginator = Paginator(data, 15)
+    page_number = request.GET.get("page")
+    data = paginator.get_page(page_number)
     return render(request, "display.html", {"students": data})
 
+
+# show?page=1
 
 def details(request, student_id):
     student = Student.objects.get(pk=student_id)  # SELECT * FROM students WHERE id=1
@@ -44,6 +52,7 @@ def details(request, student_id):
 def delete_student(request, student_id):
     student = get_object_or_404(Student, pk=student_id)
     student.delete()
+    messages.info(request, f"Student {student.first_name} {student.last_name} was deleted successfully")
     return redirect("show")
 
 
@@ -59,6 +68,23 @@ def students_search(request):
         score = int(search)
         data = Student.objects.filter(kcpe_score=score)
 
+    paginator = Paginator(data, 15)
+    page_number = request.GET.get("page")
+    data = paginator.get_page(page_number)
     return render(request, "display.html", {"students": data})
 
+
 # Elastic search
+def update_student(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)  # SELECT * FROM students WHERE id=1
+    if request.method == "POST":
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Successfully updated student {student.first_name}")
+            return redirect("details", student_id)
+    else:
+        form = StudentForm(instance=student)
+    return render(request, "update.html", {"form": form})
+
+# CRUD
