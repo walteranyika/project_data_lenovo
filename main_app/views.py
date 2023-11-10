@@ -78,7 +78,7 @@ def students_search(request):
 def update_student(request, student_id):
     student = get_object_or_404(Student, pk=student_id)  # SELECT * FROM students WHERE id=1
     if request.method == "POST":
-        form = StudentForm(request.POST, instance=student)
+        form = StudentForm(request.POST, request.FILES, instance=student)
         if form.is_valid():
             form.save()
             messages.success(request, f"Successfully updated student {student.first_name}")
