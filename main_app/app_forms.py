@@ -12,4 +12,8 @@ class StudentForm(forms.ModelForm):
             "kcpe_score": forms.NumberInput(attrs={"max": 500, "min": 0})
         }
 
+
 # how to add radio field django ModelForm
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=50)
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput)

@@ -1,13 +1,16 @@
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 
-from main_app.app_forms import StudentForm
+from main_app.app_forms import StudentForm, LoginForm
 from main_app.models import Student
 
 
 # Create your views here.
+@login_required  # decorators
 def students(request):
     if request.method == "POST":
         form = StudentForm(request.POST, request.FILES)
@@ -23,6 +26,7 @@ def students(request):
     return render(request, "students.html", {"form": form})
 
 
+@login_required
 def show_students(request):
     data = Student.objects.all()  # SELECT * FROM students
     # data = Student.objects.all().order_by("-kcpe_score")
@@ -43,12 +47,13 @@ def show_students(request):
 
 
 # show?page=1
-
+@login_required
 def details(request, student_id):
     student = Student.objects.get(pk=student_id)  # SELECT * FROM students WHERE id=1
     return render(request, "details.html", {"student": student})
 
 
+@login_required
 def delete_student(request, student_id):
     student = get_object_or_404(Student, pk=student_id)
     student.delete()
@@ -56,6 +61,7 @@ def delete_student(request, student_id):
     return redirect("show")
 
 
+@login_required
 def students_search(request):
     search = request.GET["search"]
     data = Student.objects.filter(
@@ -75,6 +81,7 @@ def students_search(request):
 
 
 # Elastic search
+@login_required
 def update_student(request, student_id):
     student = get_object_or_404(Student, pk=student_id)  # SELECT * FROM students WHERE id=1
     if request.method == "POST":
@@ -87,4 +94,28 @@ def update_student(request, student_id):
         form = StudentForm(instance=student)
     return render(request, "update.html", {"form": form})
 
+
 # CRUD
+
+def signin(request):
+    if request.method == "GET":
+        form = LoginForm()
+        return render(request, "login.html", {"form": form})
+    elif request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user:
+                login(request, user)
+                messages.success(request, "Signed in successfully")
+                return redirect('home')
+        messages.error(request, "Invalid username or password")
+        return render(request, "login.html", {"form": form})
+
+
+def signout(request):
+    logout(request)  # kill al the cookies and sessions
+    return redirect('login')
+# redis db

@@ -140,3 +140,5 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.DEBUG: "alert-dark",
 }
+
+LOGIN_URL = "/login"
