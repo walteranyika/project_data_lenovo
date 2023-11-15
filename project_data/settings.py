@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os.path
 from pathlib import Path
+# import pymysql
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from django.contrib import messages
@@ -79,8 +80,12 @@ WSGI_APPLICATION = 'project_data.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'students_project',
+        'USER': 'root',
+        'PASSWORD': 'walter',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -142,3 +147,8 @@ MESSAGE_TAGS = {
 }
 
 LOGIN_URL = "/login"
+
+# pymysql.install_as_MySQLdb()
+
+# python manage.py populate
+# python manage.py createsuperuser

@@ -29,3 +29,5 @@ class Student(models.Model):
         return f"{self.first_name}  {self.last_name}"
 
 # pip install Pillow
+# pip install mysqlclient  --- refuses
+# pip install pymysql  --> pymysql.install_as_MySQLdb()
